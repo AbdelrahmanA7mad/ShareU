@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35208.52
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareU", "ShareU\ShareU.csproj", "{89A400AA-F50E-48D1-AD2E-BCA9B568AFDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89A400AA-F50E-48D1-AD2E-BCA9B568AFDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89A400AA-F50E-48D1-AD2E-BCA9B568AFDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89A400AA-F50E-48D1-AD2E-BCA9B568AFDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89A400AA-F50E-48D1-AD2E-BCA9B568AFDE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B276561-2FA5-43B6-A02A-B66C6C7EBFD4}
+	EndGlobalSection
+EndGlobal
