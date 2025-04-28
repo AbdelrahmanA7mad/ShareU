@@ -45,7 +45,7 @@ namespace ShareU
                         <td>{fileName}</td>
                         <td>{fileSize}</td>
                         <td>{dateModified}</td>
-                        <td><a href='{downloadUrl}' class='button'>Download</a></td>
+                        <td><a href='{downloadUrl}' style='text-decoration:none' class='button'>Download</a></td>
                     </tr>");
                 }
 

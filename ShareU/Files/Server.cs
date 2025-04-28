@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Net.Sockets;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace ShareU
 {
@@ -13,8 +14,8 @@ namespace ShareU
         private Thread _listenerThread;
         private bool _isRunning = false;
         private readonly string _uploadDirectory;
+        public string Url { get; set; }
         private readonly FileHandler _fileHandler;
-
         public bool IsRunning => _isRunning;
 
         public event EventHandler<string> StatusChanged;
@@ -51,7 +52,17 @@ namespace ShareU
             _isRunning = false;
             OnStatusChanged("Share Stopped");
         }
+        public string getIp()
+        {
+            List<string> ipAddress = GetLocalIPAddress();
+            foreach (string ip in ipAddress)
+            {
+                Url = $"http://{ip}:{3333}";
 
+            }
+            return Url;
+
+        }
         private List<string> GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -81,10 +92,9 @@ namespace ShareU
                 List<string> ipAddress = GetLocalIPAddress();
                 foreach (string ip in ipAddress)
                 {
-                    OnStatusChanged($"Server running at:\nhttp://{ip}:{port}\nScan with your phone");
-                }
-                Console.WriteLine($"Server is listening on port {port}...");
+                    OnStatusChanged($"Server running at:\nhttp://{ip}:{port}\nopen on your phone");
 
+                }
 
                 while (_httpListener.IsListening)
                 {
@@ -180,8 +190,10 @@ namespace ShareU
 
             return port;
         }
+        
 
-        protected virtual void OnStatusChanged(string message)
+
+        public virtual void OnStatusChanged(string message)
         {
             StatusChanged?.Invoke(this, message);
         }

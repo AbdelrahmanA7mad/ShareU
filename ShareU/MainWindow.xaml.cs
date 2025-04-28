@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.ComponentModel;
 using Path = System.IO.Path;
+using System.Diagnostics;
 
 namespace ShareU
 {
@@ -81,7 +82,30 @@ namespace ShareU
         private void StartServerButton_Click(object sender, RoutedEventArgs e)
         {
             StartServer();
+
+            try
+            {
+                string serverUrl = _server.getIp();
+
+                if (!string.IsNullOrEmpty(serverUrl))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = serverUrl,
+                        UseShellExecute = true
+                    });
+                }
+                else
+                {
+                    MessageBox.Show("Server URL is not available.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open browser: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
 
         private void StopServerButton_Click(object sender, RoutedEventArgs e)
         {
