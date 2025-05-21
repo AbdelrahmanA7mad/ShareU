@@ -93,22 +93,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Material Design Icons](https://materialdesignicons.com/) for UI icons
 - [Modern UI Design](https://www.modernui.com/) for design inspiration
 
-## Support
-
-If you encounter any issues or have questions, please:
-1. Check the [Issues](https://github.com/yourusername/ShareU/issues) page
-2. Create a new issue if your problem isn't already listed
-
-## Roadmap
-
-- [ ] Add file upload progress indicators
-- [ ] Implement file compression
-- [ ] Add support for file sharing between different networks
-- [ ] Implement user authentication
-- [ ] Add file preview functionality
-- [ ] Support for folder uploads
-- [ ] Dark mode support
-
 ---
 
-Made with ❤️ by [Your Name] 
+Made with ❤️ by Abdelrhaman Ahmed
