@@ -125,7 +125,11 @@ namespace ShareU
                             {
                                 _fileHandler.HandleFileUpload(request, response);
                             }
-        
+                            else if (request.HttpMethod == "DELETE" && path.StartsWith("/delete/"))
+                            {
+                                string fileName = path.Substring("/delete/".Length);
+                                _fileHandler.HandleFileDelete(fileName, response);
+                            }
                         }
                         finally
                         {

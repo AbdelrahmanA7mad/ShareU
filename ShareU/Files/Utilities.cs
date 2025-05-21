@@ -26,12 +26,12 @@ namespace ShareU
         }
 
         // Find the start position of the file part in multipart data
-        public int FindFileStart(byte[] data, byte[] boundary)
+        public int FindFileStart(byte[] data, int startPosition, byte[] boundary)
         {
-            int position = 0;
+            int position = startPosition;
 
             // Skip the first boundary
-            position = FindByteSequence(data, 0, boundary);
+            position = FindByteSequence(data, position, boundary);
             if (position == -1)
                 return -1;
 

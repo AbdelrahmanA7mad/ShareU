@@ -39,13 +39,21 @@ namespace ShareU
                     string fileSize = _utilities.FormatFileSize(fileInfo.Length);
                     string dateModified = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
                     string downloadUrl = $"/download/{Uri.EscapeDataString(fileName)}";
+                    string deleteUrl = $"/delete/{Uri.EscapeDataString(fileName)}";
 
                     html.Append($@"
                     <tr>
                         <td>{fileName}</td>
                         <td>{fileSize}</td>
                         <td>{dateModified}</td>
-                        <td><a href='{downloadUrl}' style='text-decoration:none' class='button'>Download</a></td>
+                        <td class=""actions"">
+                            <a href='{downloadUrl}' class=""btn btn-download"">
+                                <i class=""fas fa-download""></i> Download
+                            </a>
+                            <button onclick=""deleteFile('{fileName}')"" class=""btn btn-danger"">
+                                <i class=""fas fa-trash""></i> Delete
+                            </button>
+                        </td>
                     </tr>");
                 }
 
@@ -621,7 +629,34 @@ namespace ShareU
         100% {{
             left: 150%;
         }}
-    }}</style>
+    }}
+
+    /* Add styles for delete button */
+    .btn-danger {{
+        background: var(--danger-color);
+        color: white;
+        padding: 10px 18px;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 10px rgba(239, 71, 111, 0.25);
+    }}
+
+    .btn-danger:hover {{
+        transform: var(--hover-transform);
+        box-shadow: 0 6px 14px rgba(239, 71, 111, 0.35);
+    }}
+
+    .actions {{
+        display: flex;
+        gap: 10px;
+        justify-content: flex-start;
+    }}
+
+    @media (max-width: 767px) {{
+        .actions {{
+            justify-content: center;
+        }}
+    }}
+</style>
 <body>
     <div class=""app-container"">
         <header>
@@ -638,10 +673,10 @@ namespace ShareU
                     <h2><i class=""fas fa-upload""></i> Upload Files</h2>
                     <form id=""uploadForm"" enctype=""multipart/form-data"">
                         <div class=""file-input-container"">
-                            <input type=""file"" name=""file"" id=""fileInput"" class=""file-input"" required>
+                            <input type=""file"" name=""files"" id=""fileInput"" class=""file-input"" multiple required>
                             <label for=""fileInput"" class=""file-label"">
                                 <i class=""fas fa-file-arrow-up""></i>
-                                <span>Drop a file here or click to browse</span>
+                                <span>Drop files here or click to browse</span>
                             </label>
                             <div id=""fileInfo"" class=""file-info""></div>
                         </div>
@@ -697,6 +732,7 @@ namespace ShareU
         const supportsPassive = checkPassiveSupport();
         const listenerOpts = supportsPassive ? {{ passive: true }} : false;
         
+
         // DOM elements cache - avoid repeated lookups
         const elements = {{
             fileInput: document.getElementById('fileInput'),
@@ -783,23 +819,28 @@ namespace ShareU
         
         function handleFileSelection() {{
             if (elements.fileInput.files.length > 0) {{
-                const file = elements.fileInput.files[0];
-                const fileSize = formatFileSize(file.size);
+                const files = elements.fileInput.files;
+                let totalSize = 0;
+                let fileInfoContent = '<div class=""file-list"">';
                 
-                // Use template literals for better performance than innerHTML
-                const fileInfoContent = `
-                    <div>
-                        <strong>${{file.name}}</strong>
-                        <div>Size: ${{fileSize}}</div>
-                        <div>Type: ${{file.type || 'Unknown'}}</div>
-                    </div>
-                `;
+                for (let i = 0; i < files.length; i++) {{
+                    const file = files[i];
+                    totalSize += file.size;
+                    fileInfoContent += `
+                        <div class=""file-item"">
+                            <strong>${{file.name}}</strong>
+                            <div>Size: ${{formatFileSize(file.size)}}</div>
+                            <div>Type: ${{file.type || 'Unknown'}}</div>
+                        </div>
+                    `;
+                }}
                 
+                fileInfoContent += '</div>';
                 elements.fileInfo.innerHTML = fileInfoContent;
                 elements.fileInfo.classList.add('active');
                 
                 // Set the total size in the upload status
-                elements.totalSize.textContent = fileSize;
+                elements.totalSize.textContent = formatFileSize(totalSize);
                 
                 // Reset upload status
                 resetUploadStatus();
@@ -819,8 +860,13 @@ namespace ShareU
                 return;
             }}
             
-            const formData = new FormData(elements.uploadForm);
-            const file = elements.fileInput.files[0];
+            const formData = new FormData();
+            const files = elements.fileInput.files;
+            
+            // Append each file to the FormData
+            for (let i = 0; i < files.length; i++) {{
+                formData.append('files', files[i]);
+            }}
             
             // Show upload status with transition
             elements.uploadStatus.classList.add('active');
@@ -860,7 +906,51 @@ namespace ShareU
                 }});
                 
                 // Handle response
-                setupXhrEventListeners(xhr, formData);
+                xhr.addEventListener('load', () => {{
+                    if (xhr.status >= 200 && xhr.status < 300) {{
+                        const result = JSON.parse(xhr.responseText);
+                        
+                        if (result.success) {{
+                            // Show complete state
+                            elements.progressBar.style.width = '100%';
+                            elements.uploadStatus.classList.add('upload-complete');
+                            elements.uploadPercentage.textContent = '100%';
+                            elements.timeRemaining.textContent = 'Complete!';
+                            
+                            showToast(`Files uploaded successfully: ${{result.fileName}}`, 'success');
+                            
+                            // Reset form after a delay
+                            setTimeout(() => {{
+                                elements.uploadForm.reset();
+                                elements.fileInfo.classList.remove('active');
+                                elements.uploadStatus.classList.remove('active', 'upload-complete');
+                                resetUploadStatus();
+                                loadFileList();
+                            }}, 2000);
+                        }} else {{
+                            showToast(`Upload failed: ${{result.error}}`, 'error');
+                            elements.uploadStatus.classList.remove('active');
+                        }}
+                    }} else {{
+                        showToast(`Error: Server returned status ${{xhr.status}}`, 'error');
+                        elements.uploadStatus.classList.remove('active');
+                    }}
+                }});
+                
+                // Handle errors
+                xhr.addEventListener('error', () => {{
+                    showToast('Network error occurred during upload', 'error');
+                    elements.uploadStatus.classList.remove('active');
+                }});
+                
+                xhr.addEventListener('abort', () => {{
+                    showToast('Upload was aborted', 'error');
+                    elements.uploadStatus.classList.remove('active');
+                }});
+                
+                // Send the request
+                xhr.open('POST', '/upload');
+                xhr.send(formData);
                 
             }} catch (error) {{
                 showToast(`Error: ${{error.message}}`, 'error');
@@ -902,56 +992,6 @@ namespace ShareU
             elements.uploadedSize.textContent = formatFileSize(event.loaded);
         }}
         
-        // Setup XHR event listeners
-        function setupXhrEventListeners(xhr, formData) {{
-            // Handle successful upload
-            xhr.addEventListener('load', () => {{
-                if (xhr.status >= 200 && xhr.status < 300) {{
-                    const result = JSON.parse(xhr.responseText);
-                    
-                    if (result.success) {{
-                        // Show complete state
-                        elements.progressBar.style.width = '100%';
-                        elements.uploadStatus.classList.add('upload-complete');
-                        elements.uploadPercentage.textContent = '100%';
-                        elements.timeRemaining.textContent = 'Complete!';
-                        
-                        showToast(`File ${{result.fileName}} uploaded successfully`, 'success');
-                        
-                        // Reset form after a delay
-                        setTimeout(() => {{
-                            elements.uploadForm.reset();
-                            elements.fileInfo.classList.remove('active');
-                            elements.uploadStatus.classList.remove('active', 'upload-complete');
-                            resetUploadStatus();
-                            loadFileList();
-                        }}, 2000);
-                    }} else {{
-                        showToast(`Upload failed: ${{result.error}}`, 'error');
-                        elements.uploadStatus.classList.remove('active');
-                    }}
-                }} else {{
-                    showToast(`Error: Server returned status ${{xhr.status}}`, 'error');
-                    elements.uploadStatus.classList.remove('active');
-                }}
-            }});
-            
-            // Handle errors
-            xhr.addEventListener('error', () => {{
-                showToast('Network error occurred during upload', 'error');
-                elements.uploadStatus.classList.remove('active');
-            }});
-            
-            xhr.addEventListener('abort', () => {{
-                showToast('Upload was aborted', 'error');
-                elements.uploadStatus.classList.remove('active');
-            }});
-            
-            // Send the request
-            xhr.open('POST', '/upload');
-            xhr.send(formData);
-        }}
-
         // Function to reset upload status display
         function resetUploadStatus() {{
             elements.progressBar.style.width = '0%';
@@ -985,7 +1025,7 @@ namespace ShareU
                 }}
                 
                 cachedFileList = html;
-                
+                    
                 if (html.trim() === '<p>No files available for download.</p>') {{
                     elements.fileList.innerHTML = `
                         <div class=""no-files"">
@@ -1225,6 +1265,32 @@ namespace ShareU
         
         // Make certain functions available globally for event handlers
         window.loadFileList = loadFileList;
+
+        // Add delete file function
+        async function deleteFile(fileName) {{
+            if (!confirm(`Are you sure you want to delete ${{fileName}}?`)) {{
+                return;
+            }}
+
+            try {{
+                const response = await fetch(`/delete/${{encodeURIComponent(fileName)}}`, {{
+                    method: 'DELETE'
+                }});
+
+                if (response.ok) {{
+                    showToast(`File ${{fileName}} deleted successfully`, 'success');
+                    loadFileList(); // Refresh the file list
+                }} else {{
+                    const result = await response.json();
+                    showToast(`Failed to delete file: ${{result.error}}`, 'error');
+                }}
+            }} catch (error) {{
+                showToast(`Error deleting file: ${{error.message}}`, 'error');
+            }}
+        }}
+
+        // Make deleteFile available globally
+        window.deleteFile = deleteFile;
     }})();
     </script></body>
 </html>";

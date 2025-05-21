@@ -5,6 +5,13 @@ using System.Windows.Controls;
 using System.ComponentModel;
 using Path = System.IO.Path;
 using System.Diagnostics;
+using System.Windows.Media.Imaging;
+using System.Windows.Interop;
+using System.Windows.Media;
+using QRCoder;
+using System.Drawing;
+using MediaColor = System.Windows.Media.Color;
+using DrawingColor = System.Drawing.Color;
 
 namespace ShareU
 {
@@ -13,6 +20,7 @@ namespace ShareU
         private Server _server;
         private string _uploadDirectory;
         private FirewallManager _firewallManager;
+        private string _currentServerUrl;
 
         public MainWindow()
         {
@@ -89,6 +97,12 @@ namespace ShareU
 
                 if (!string.IsNullOrEmpty(serverUrl))
                 {
+                    _currentServerUrl = serverUrl;
+                    ServerUrlBlock.Text = serverUrl;
+                    ServerUrlBlock.Visibility = Visibility.Visible;
+                    CopyUrlButton.Visibility = Visibility.Visible;
+                    GenerateQRCode(serverUrl);
+
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = serverUrl,
@@ -106,11 +120,72 @@ namespace ShareU
             }
         }
 
-
         private void StopServerButton_Click(object sender, RoutedEventArgs e)
         {
             StopServer();
+            ClearQRCode();
         }
+
+        private void CopyUrlButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_currentServerUrl))
+            {
+                Clipboard.SetText(_currentServerUrl);
+                MessageBox.Show("URL copied to clipboard!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void GenerateQRCode(string url)
+        {
+            try
+            {
+                using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+                {
+                    QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+                    using (QRCode qrCode = new QRCode(qrCodeData))
+                    {
+                        using (Bitmap qrCodeImage = qrCode.GetGraphic(20))
+                        {
+                            QRCodeImage.Source = ConvertBitmapToImageSource(qrCodeImage);
+                            QRCodeUrl.Text = url;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error generating QR code: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ClearQRCode()
+        {
+            QRCodeImage.Source = null;
+            QRCodeUrl.Text = "";
+            ServerUrlBlock.Visibility = Visibility.Collapsed;
+            CopyUrlButton.Visibility = Visibility.Collapsed;
+            _currentServerUrl = null;
+        }
+
+        private BitmapSource ConvertBitmapToImageSource(Bitmap bitmap)
+        {
+            var handle = bitmap.GetHbitmap();
+            try
+            {
+                return Imaging.CreateBitmapSourceFromHBitmap(
+                    handle,
+                    IntPtr.Zero,
+                    Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally
+            {
+                DeleteObject(handle);
+            }
+        }
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        private static extern bool DeleteObject(IntPtr handle);
 
         // Start HTTP server
         private void StartServer()
@@ -120,6 +195,7 @@ namespace ShareU
 
             StatusTextBlock.Text = "Starting Sharing...";
             StartServerButton.IsEnabled = false;
+            StatusIndicator.Fill = new SolidColorBrush(MediaColor.FromRgb(6, 214, 160)); // Success color
 
             _firewallManager.CreateFirewallRule();
             _server.Start();
@@ -135,6 +211,7 @@ namespace ShareU
 
             StatusTextBlock.Text = "Stopping Sharing...";
             StopServerButton.IsEnabled = false;
+            StatusIndicator.Fill = new SolidColorBrush(MediaColor.FromRgb(239, 71, 111)); // Error color
 
             _firewallManager.DeleteFirewallRule();
             _server.Stop();
