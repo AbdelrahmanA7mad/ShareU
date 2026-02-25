@@ -17,7 +17,7 @@ namespace ShareU
 {
     public partial class MainWindow : Window
     {
-        private Server _server;
+        private WebHostManager _webHostManager;
         private string _uploadDirectory;
         private FirewallManager _firewallManager;
         private string _currentServerUrl;
@@ -33,52 +33,31 @@ namespace ShareU
                 Directory.CreateDirectory(_uploadDirectory);
             }
 
-            _server = new Server(_uploadDirectory);
+            _webHostManager = new WebHostManager(_uploadDirectory);
             _firewallManager = new FirewallManager();
 
-            // Initialize UI components if not already created in XAML
+            // Initialize UI components if they are completely missing (fallback for designer testing)
             if (StatusTextBlock == null)
             {
-                StatusTextBlock = new TextBlock
-                {
-                    Text = "Share Stopped",
-                    Margin = new Thickness(10)
-                };
-
-                StartServerButton = new Button
-                {
-                    Content = "Start Share",
-                    Margin = new Thickness(10)
-                };
-                StartServerButton.Click += StartServerButton_Click;
-
-                StopServerButton = new Button
-                {
-                    Content = "Stop Share",
-                    Margin = new Thickness(10),
-                    IsEnabled = false
-                };
-                StopServerButton.Click += StopServerButton_Click;
-
-                // Stack panel for buttons
-                StackPanel buttonPanel = new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(10)
-                };
+                StatusTextBlock = new TextBlock { Text = "Share Stopped", Margin = new Thickness(10) };
+                StartServerButton = new Button { Content = "Start Share", Margin = new Thickness(10) };
+                StopServerButton = new Button { Content = "Stop Share", Margin = new Thickness(10), IsEnabled = false };
+                
+                StackPanel buttonPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(10) };
                 buttonPanel.Children.Add(StartServerButton);
                 buttonPanel.Children.Add(StopServerButton);
-
-                // Main layout
+                
                 StackPanel mainPanel = new StackPanel();
                 mainPanel.Children.Add(StatusTextBlock);
                 mainPanel.Children.Add(buttonPanel);
-
                 this.Content = mainPanel;
             }
 
-            _server.StatusChanged += (sender, message) =>
+            // Always attach these events whether controls come from XAML or fallback above
+            StartServerButton.Click += async (s, e) => await StartServerButton_Click(s, e);
+            StopServerButton.Click += async (s, e) => await StopServerButton_Click(s, e);
+
+            _webHostManager.StatusChanged += (sender, message) =>
             {
                 Dispatcher.Invoke(() =>
                 {
@@ -87,19 +66,19 @@ namespace ShareU
             };
         }
 
-        private void StartServerButton_Click(object sender, RoutedEventArgs e)
+        private async Task StartServerButton_Click(object sender, RoutedEventArgs e)
         {
-            StartServer();
+            await StartServer();
 
             try
             {
-                string serverUrl = _server.getIp();
+                string serverUrl = _webHostManager.Url;
 
                 if (!string.IsNullOrEmpty(serverUrl))
                 {
                     _currentServerUrl = serverUrl;
                     ServerUrlBlock.Text = serverUrl;
-                    ServerUrlBlock.Visibility = Visibility.Visible;
+                    ServerUrlContainer.Visibility = Visibility.Visible;
                     CopyUrlButton.Visibility = Visibility.Visible;
                     GenerateQRCode(serverUrl);
 
@@ -120,9 +99,9 @@ namespace ShareU
             }
         }
 
-        private void StopServerButton_Click(object sender, RoutedEventArgs e)
+        private async Task StopServerButton_Click(object sender, RoutedEventArgs e)
         {
-            StopServer();
+            await StopServer();
             ClearQRCode();
         }
 
@@ -163,6 +142,7 @@ namespace ShareU
             QRCodeImage.Source = null;
             QRCodeUrl.Text = "";
             ServerUrlBlock.Visibility = Visibility.Collapsed;
+            ServerUrlContainer.Visibility = Visibility.Collapsed;
             CopyUrlButton.Visibility = Visibility.Collapsed;
             _currentServerUrl = null;
         }
@@ -188,9 +168,9 @@ namespace ShareU
         private static extern bool DeleteObject(IntPtr handle);
 
         // Start HTTP server
-        private void StartServer()
+        private async Task StartServer()
         {
-            if (_server.IsRunning)
+            if (_webHostManager.IsRunning)
                 return;
 
             StatusTextBlock.Text = "Starting Sharing...";
@@ -198,15 +178,15 @@ namespace ShareU
             StatusIndicator.Fill = new SolidColorBrush(MediaColor.FromRgb(6, 214, 160)); // Success color
 
             _firewallManager.CreateFirewallRule();
-            _server.Start();
+            await _webHostManager.StartAsync();
 
             StopServerButton.IsEnabled = true;
         }
 
         // Stop HTTP server
-        private void StopServer()
+        private async Task StopServer()
         {
-            if (!_server.IsRunning)
+            if (!_webHostManager.IsRunning)
                 return;
 
             StatusTextBlock.Text = "Stopping Sharing...";
@@ -214,7 +194,7 @@ namespace ShareU
             StatusIndicator.Fill = new SolidColorBrush(MediaColor.FromRgb(239, 71, 111)); // Error color
 
             _firewallManager.DeleteFirewallRule();
-            _server.Stop();
+            await _webHostManager.StopAsync();
 
             StartServerButton.IsEnabled = true;
         }
@@ -222,8 +202,31 @@ namespace ShareU
         // Ensure proper cleanup when window is closing
         protected override void OnClosing(CancelEventArgs e)
         {
-            StopServer();
+            // We cannot easily await inside OnClosing synchronously without blocking UI thread badly,
+            // but for a clean shutdown we should try to stop it gracefully.
+            if (_webHostManager.IsRunning)
+            {
+                Task.Run(async () => await _webHostManager.StopAsync()).Wait();
+            }
             base.OnClosing(e);
+        }
+
+        private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                DragMove();
+            }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
         }
     }
 }

@@ -4,239 +4,167 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShareU"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="ShareU - File Transfer" 
         Height="720" Width="1000"
         WindowStartupLocation="CenterScreen"
-        Background="#f8f9fa"
-        FontFamily="Segoe UI, sans-serif"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Icon="pack://application:,,,/resources/app_icon.png"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         ResizeMode="CanResizeWithGrip">
 
     <Window.Resources>
-        <!-- Create a linear gradient brush for the primary gradient -->
-        <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#4361ee" Offset="0"/>
-            <GradientStop Color="#3a0ca3" Offset="1"/>
-        </LinearGradientBrush>
-
-        <!-- Create a linear gradient brush for the accent gradient -->
-        <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#4cc9f0" Offset="0"/>
-            <GradientStop Color="#4361ee" Offset="1"/>
-        </LinearGradientBrush>
-
-        <!-- Define the shadow effects -->
-        <DropShadowEffect x:Key="ButtonShadowEffect" BlurRadius="12" ShadowDepth="2" 
-                          Opacity="0.25" Color="#000000"/>
-
-        <DropShadowEffect x:Key="CardShadowEffect" BlurRadius="24" ShadowDepth="4" 
-                          Opacity="0.06" Color="#000000"/>
-
-        <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource PrimaryGradient}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="22,12"/>
-            <Setter Property="Margin" Value="8"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="12" 
-                                Padding="{TemplateBinding Padding}">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="12" ShadowDepth="2" 
-                                                  Opacity="0.25" Color="#000000"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TransformGroup>
-                                            <TranslateTransform X="0" Y="-2"/>
-                                        </TransformGroup>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#3a0ca3"/>
-                                <Setter Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TransformGroup>
-                                            <TranslateTransform X="0" Y="0"/>
-                                        </TransformGroup>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="#6c757d"/>
-                                <Setter Property="Foreground" Value="#dedede"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="StopButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#ef476f"/>
-            <Style.Triggers>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#d43b63"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="StatusCard" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="Padding" Value="24"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-            <Setter Property="BorderBrush" Value="#eeeeee"/>
+        <Style x:Key="GlassCard" TargetType="Border">
+            <Setter Property="Background" Value="#22FFFFFF"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="BorderBrush" Value="#44FFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" 
-                                    Opacity="0.06" Color="#000000"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="QRCodeCard" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="Padding" Value="24"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-            <Setter Property="BorderBrush" Value="#eeeeee"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" 
-                                    Opacity="0.06" Color="#000000"/>
+                    <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="0"/>
                 </Setter.Value>
             </Setter>
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Border CornerRadius="20" BorderThickness="1" BorderBrush="#33FFFFFF">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#FF1A1A2E" Offset="0"/>
+                <GradientStop Color="#FF16213E" Offset="0.5"/>
+                <GradientStop Color="#FF0F3460" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Padding="30,20">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#4361ee" Offset="0"/>
-                    <GradientStop Color="#3a0ca3" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <StackPanel>
-                <TextBlock Text="ShareU" FontSize="36" FontWeight="Bold" Foreground="White" TextAlignment="Center"/>
-                <TextBlock Text="Secure Local Network File Transfer" FontSize="16" Foreground="White" TextAlignment="Center" Margin="0,8,0,0"/>
-            </StackPanel>
-        </Border>
+            <!-- Custom Title Bar -->
+            <Grid Grid.Row="0" Margin="20,10,20,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="pack://application:,,,/resources/app_icon.png" Width="28" Height="28" Margin="0,0,10,0" />
+                    <TextBlock Text="ShareU" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" Click="MinimizeButton_Click" Padding="0" Width="30" Height="30">
+                        <materialDesign:PackIcon Kind="WindowMinimize" Foreground="White" />
+                    </Button>
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" Click="CloseButton_Click" Padding="0" Width="30" Height="30">
+                        <materialDesign:PackIcon Kind="WindowClose" Foreground="#E94560" />
+                    </Button>
+                </StackPanel>
+            </Grid>
 
-        <!-- Main Content -->
-        <Grid Grid.Row="1" Margin="24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <!-- Main Content -->
+            <Grid Grid.Row="1" Margin="30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Left Column - Status and Controls -->
-            <StackPanel Grid.Column="0" Margin="0,0,24,0" VerticalAlignment="Center">
-                <!-- Status Section -->
-                <Border Style="{StaticResource StatusCard}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Ellipse x:Name="StatusIndicator" Width="16" Height="16" Fill="#ef476f" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="StatusTextBlock" Text="Server Stopped" FontSize="20" FontWeight="SemiBold" Foreground="#212b36"/>
+                <!-- Left Column - Status and Controls -->
+                <StackPanel Grid.Column="0" Margin="0,0,20,0" VerticalAlignment="Center">
+                    <Border Style="{StaticResource GlassCard}" Padding="30">
+                        <StackPanel>
+                            <TextBlock Text="STATUS" FontSize="12" FontWeight="Bold" Foreground="#88FFFFFF" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Ellipse x:Name="StatusIndicator" Width="12" Height="12" Fill="#E94560" Margin="0,0,15,0" VerticalAlignment="Center">
+                                    <Ellipse.Effect>
+                                        <BlurEffect Radius="4"/>
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                                <TextBlock x:Name="StatusTextBlock" Text="Offline" FontSize="24" FontWeight="Light" Foreground="White" />
+                            </StackPanel>
+                            
+                            <Border x:Name="ServerUrlContainer" Background="#11FFFFFF" CornerRadius="10" Margin="0,20,0,0" Visibility="Collapsed">
+                                <TextBlock x:Name="ServerUrlBlock" Text="" Padding="15" TextAlignment="Center" 
+                                         Foreground="#E94560" FontFamily="Consolas" FontSize="14"/>
+                            </Border>
                         </StackPanel>
-                        <TextBlock x:Name="ServerUrlBlock" Text="" Margin="0,16,0,0" TextAlignment="Center" 
-                                 Foreground="#4361ee" FontFamily="Consolas" FontSize="16" Visibility="Collapsed"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Controls -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24">
-                    <Button x:Name="StartServerButton" Content="Start Share" Style="{StaticResource ModernButton}" Click="StartServerButton_Click">
-                        <Button.ContentTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⏵" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </Button.ContentTemplate>
-                    </Button>
-                    <Button x:Name="StopServerButton" Content="Stop Share" Style="{StaticResource StopButton}" IsEnabled="False" Click="StopServerButton_Click">
-                        <Button.ContentTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="◼" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </Button.ContentTemplate>
-                    </Button>
-                </StackPanel>
-            </StackPanel>
-
-            <!-- Center Column - QR Code -->
-            <Border Grid.Column="1" Style="{StaticResource QRCodeCard}" Width="320" Margin="0,0,24,0">
-                <StackPanel>
-                    <TextBlock Text="Scan QR Code" FontSize="24" FontWeight="SemiBold" Foreground="#212b36" Margin="0,0,0,20" TextAlignment="Center"/>
-                    <Border x:Name="QRCodeContainer" Background="White" Width="240" Height="240" HorizontalAlignment="Center">
-                        <Image x:Name="QRCodeImage" Stretch="Uniform"/>
                     </Border>
-                    <TextBlock x:Name="QRCodeUrl" Text="" Margin="0,20,0,0" TextAlignment="Center" 
-                             Foreground="#4361ee" FontFamily="Consolas" FontSize="14" TextWrapping="Wrap"/>
-                    <Button x:Name="CopyUrlButton" Content="Copy URL" Style="{StaticResource ModernButton}" 
-                            Margin="0,20,0,0" Click="CopyUrlButton_Click" Visibility="Collapsed">
-                        <Button.ContentTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📋" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </Button.ContentTemplate>
-                    </Button>
-                </StackPanel>
-            </Border>
 
-            <!-- Right Column - Empty for balance -->
-            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                <Border Style="{StaticResource StatusCard}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+                        <Button x:Name="StartServerButton" Content="START SHARING" 
+                                Foreground="White"
+                                Background="#E94560"
+                                BorderThickness="0"
+                                materialDesign:ButtonAssist.CornerRadius="25" 
+                                Width="160" Height="50" FontSize="14" FontWeight="Bold">
+                            <Button.Effect>
+                                <DropShadowEffect BlurRadius="20" Color="#E94560" Opacity="0.4" ShadowDepth="0"/>
+                            </Button.Effect>
+                        </Button>
+                        <Button x:Name="StopServerButton" Content="STOP" 
+                                IsEnabled="False"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Foreground="White"
+                                BorderBrush="#44FFFFFF"
+                                materialDesign:ButtonAssist.CornerRadius="25" 
+                                Margin="15,0,0,0" Width="100" Height="50" FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Center Column - QR Code -->
+                <Border Grid.Column="1" Style="{StaticResource GlassCard}" Width="320" Margin="0,0,20,0" Padding="30">
                     <StackPanel>
-                        <TextBlock Text="How to Use" FontSize="24" FontWeight="SemiBold" Foreground="#212b36" Margin="0,0,0,16"/>
-                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,12">
-                            <Run Text="1. Click &quot;Start Share&quot; to begin file sharing" FontWeight="SemiBold"/>
-                            <LineBreak/>
-                            <Run Text="2. Scan the QR code with your mobile device"/>
-                            <LineBreak/>
-                            <Run Text="3. Or copy the URL to share with others"/>
-                            <LineBreak/>
-                            <Run Text="4. Upload and download files securely"/>
-                        </TextBlock>
+                        <TextBlock Text="REMOTELY CONNECT" FontSize="12" FontWeight="Bold" Foreground="#88FFFFFF" Margin="0,0,0,20" TextAlignment="Center" />
+                        <Border Background="White" CornerRadius="15" Padding="15" HorizontalAlignment="Center">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Opacity="0.2" ShadowDepth="0"/>
+                            </Border.Effect>
+                            <Image x:Name="QRCodeImage" Width="200" Height="200" Stretch="Uniform"/>
+                        </Border>
+                        <TextBlock x:Name="QRCodeUrl" Text="" Margin="0,20,0,0" TextAlignment="Center" 
+                                 Foreground="White" Opacity="0.6" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap"/>
+                        <Button x:Name="CopyUrlButton" Content="COPY URL" 
+                                Style="{StaticResource MaterialDesignFlatButton}" 
+                                Foreground="#E94560"
+                                Margin="0,15,0,0" Click="CopyUrlButton_Click" Visibility="Collapsed">
+                        </Button>
                     </StackPanel>
                 </Border>
-            </StackPanel>
-        </Grid>
 
-        <!-- Footer -->
-        <Border Grid.Row="2" Background="#f8f9fa" Padding="20,12">
-            <TextBlock Text="ShareU v1.0 • Secure Local Network File Transfer" 
-                     HorizontalAlignment="Center" Foreground="#6c757d" FontSize="12"/>
-        </Border>
-    </Grid>
+                <!-- Right Column -->
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <Border Style="{StaticResource GlassCard}" Padding="30">
+                        <StackPanel>
+                            <TextBlock Text="INSTRUCTIONS" FontSize="12" FontWeight="Bold" Foreground="#88FFFFFF" Margin="0,0,0,20"/>
+                            <StackPanel>
+                                <TextBlock Text="1. Start the server" Foreground="White" Margin="0,0,0,10" Opacity="0.8"/>
+                                <TextBlock Text="2. Scan QR or share URL" Foreground="White" Margin="0,0,0,10" Opacity="0.8"/>
+                                <TextBlock Text="3. Drag &amp; Drop files here" Foreground="White" Margin="0,0,0,10" Opacity="0.8"/>
+                                <TextBlock Text="4. Access from any device" Foreground="White" Opacity="0.8"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Border Style="{StaticResource GlassCard}" Margin="0,20,0,0" Padding="20">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Security" Foreground="#06D6A0" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Encrypted P2P Transfer" Foreground="#06D6A0" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- Footer -->
+            <TextBlock Grid.Row="2" Text="ShareU • Design by Antigravity" 
+                     HorizontalAlignment="Center" Margin="0,0,0,15" Opacity="0.3" Foreground="White" FontSize="10"/>
+        </Grid>
+    </Border>
 </Window>

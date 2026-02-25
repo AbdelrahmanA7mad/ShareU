@@ -1,0 +1,576 @@
+:root {
+    --primary-color: #4361ee;
+    --primary-gradient: linear-gradient(135deg, #4361ee, #3a0ca3);
+    --primary-dark: #3a0ca3;
+    --accent-color: #4cc9f0;
+    --accent-gradient: linear-gradient(135deg, #4cc9f0, #4361ee);
+    --success-color: #06d6a0;
+    --warning-color: #ffd166;
+    --danger-color: #ef476f;
+    --dark-color: #1b263b;
+    --text-color: #212b36;
+    --light-color: #f8f9fa;
+    --gray-color: #6c757d;
+    --border-radius: 12px;
+    --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    --hover-transform: translateY(-2px);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-primary);
+}
+
+body {
+    background: #f7fafc;
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles - Modern and Clean */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    position: relative;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.logo i {
+    font-size: 2.8rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h1 {
+    font-size: 2.8rem;
+    color: var(--dark-color);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.tagline {
+    color: var(--gray-color);
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+/* Main Content - Two Column Layout */
+main {
+    display: grid;
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+@media (min-width: 768px) {
+    main {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Card Styles - Enhanced Design */
+.card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 30px;
+    height: 100%;
+    transition: var(--transition);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--primary-gradient);
+}
+
+.card:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--dark-color);
+    font-weight: 700;
+}
+
+h2 i {
+    color: var(--primary-color);
+}
+
+/* Upload Section - Modern Design */
+.file-input-container {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.file-input {
+    position: absolute;
+    left: -9999px;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--primary-color);
+    border-radius: var(--border-radius);
+    padding: 40px 30px;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: rgba(67, 97, 238, 0.03);
+}
+
+.file-label:hover {
+    background-color: rgba(67, 97, 238, 0.08);
+    transform: var(--hover-transform);
+}
+
+.file-label i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.file-info {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    background-color: rgba(67, 97, 238, 0.08);
+    border-left: 4px solid var(--primary-color);
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.file-info.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Button Styles - Improved Look and Feel */
+.btn {
+    padding: 14px 24px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: var(--transition);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s ease;
+    z-index: -1;
+}
+
+.btn:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    color: white;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+    transform: var(--hover-transform);
+}
+
+.btn-download {
+    background: var(--accent-gradient);
+    color: white;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 10px rgba(76, 201, 240, 0.25);
+    text-decoration: none;
+}
+
+.btn-download:hover {
+    transform: var(--hover-transform);
+    box-shadow: 0 6px 14px rgba(76, 201, 240, 0.35);
+}
+
+/* File List - Improved Table Design */
+.file-list {
+    min-height: 200px;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--gray-color);
+    height: 200px;
+    flex-direction: column;
+}
+
+.loading i {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+th {
+    text-align: left;
+    padding: 15px;
+    background-color: rgba(67, 97, 238, 0.08);
+    color: var(--dark-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+    position: relative;
+}
+
+th:first-child {
+    border-top-left-radius: 8px;
+}
+
+th:last-child {
+    border-top-right-radius: 8px;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+tr:hover {
+    background-color: rgba(67, 97, 238, 0.03);
+}
+
+/* Optimized Mobile Table View */
+@media (max-width: 767px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        background-color: white;
+        margin-bottom: 15px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    td {
+        border: none;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+    }
+
+    td:before {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 45%;
+        padding-right: 10px;
+        font-weight: 600;
+        content: attr(data-label);
+        text-align: left;
+    }
+
+    td:last-child {
+        border-bottom: none;
+        text-align: center;
+        padding: 15px;
+    }
+}
+
+/* No Files Message - Improved Design */
+.no-files {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--gray-color);
+}
+
+.no-files i {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    opacity: 0.6;
+    color: var(--primary-color);
+}
+
+.no-files p {
+    font-size: 1.1rem;
+}
+
+/* Toast Notification - Enhanced Design */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 350px;
+    backdrop-filter: blur(10px);
+}
+
+.toast.success {
+    background-color: rgba(6, 214, 160, 0.95);
+    color: white;
+    border-left: 4px solid var(--success-color);
+}
+
+.toast.error {
+    background-color: rgba(239, 71, 111, 0.95);
+    color: white;
+    border-left: 4px solid var(--danger-color);
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Footer - Subtle Design */
+footer {
+    text-align: center;
+    padding: 30px 0;
+    color: var(--gray-color);
+    font-size: 0.95rem;
+}
+
+/* Upload Status Styles - Modern Design */
+.upload-status {
+    display: none;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.upload-status.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.upload-progress-container {
+    width: 100%;
+    height: 12px;
+    background-color: rgba(226, 232, 240, 0.6);
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--primary-gradient);
+    transition: width 0.2s linear;
+}
+
+.upload-details {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.upload-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.upload-stats span {
+    white-space: nowrap;
+}
+
+.upload-transferred {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Animation for when upload completes */
+@keyframes completeFlash {
+    0% {
+        background-color: rgba(6, 214, 160, 0.2);
+    }
+    50% {
+        background-color: rgba(6, 214, 160, 0.4);
+    }
+    100% {
+        background-color: rgba(6, 214, 160, 0.2);
+    }
+}
+
+.upload-complete {
+    animation: completeFlash 1.5s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .card {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+    }
+
+    h2 {
+        font-size: 1.4rem;
+    }
+    
+    .file-label {
+        padding: 30px 20px;
+    }
+}
+
+/* Performance optimizations - Use transform instead of top/left for animations */
+.shine-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.shine-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-25deg);
+    will-change: transform;
+}
+
+.shine-effect:hover::after {
+    animation: shine 1.2s ease;
+}
+
+@keyframes shine {
+    100% {
+        left: 150%;
+    }
+}
+
+/* Add styles for delete button */
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 10px rgba(239, 71, 111, 0.25);
+}
+
+.btn-danger:hover {
+    transform: var(--hover-transform);
+    box-shadow: 0 6px 14px rgba(239, 71, 111, 0.35);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+@media (max-width: 767px) {
+    .actions {
+        justify-content: center;
+    }
+}

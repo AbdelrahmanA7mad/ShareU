@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareU - File Transfer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-share-nodes"></i>
+                <h1>ShareU</h1>
+            </div>
+            <p class="tagline">Fast, secure file transfers made simple</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <div class="card shine-effect">
+                    <h2><i class="fas fa-upload"></i> Upload Files</h2>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="file-input-container">
+                            <input type="file" name="files" id="fileInput" class="file-input" multiple>
+                            <input type="file" name="folders" id="folderInput" class="file-input" webkitdirectory
+                                directory multiple>
+
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <label for="fileInput" class="file-label" style="flex: 1;">
+                                    <i class="fas fa-file-arrow-up"></i>
+                                    <span>Browse Files</span>
+                                </label>
+                                <label for="folderInput" class="file-label" style="flex: 1; background: #6c757d;">
+                                    <i class="fas fa-folder-plus"></i>
+                                    <span>Browse Folder</span>
+                                </label>
+                            </div>
+
+                            <div class="drop-zone" id="dropZone"
+                                style="margin-top: 15px; border: 2px dashed #4361ee; border-radius: 8px; padding: 20px; text-align: center; color: #6c757d;">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px;"></i>
+                                <p>Or drag & drop files here</p>
+                            </div>
+
+                            <div id="fileInfo" class="file-info"></div>
+                        </div>
+                        <!-- Upload Status Container -->
+                        <div id="uploadStatus" class="upload-status">
+                            <div class="upload-progress-container">
+                                <div class="upload-progress-bar" id="progressBar"></div>
+                            </div>
+                            <div class="upload-details">
+                                <div class="upload-stats">
+                                    <span id="uploadPercentage">0%</span>
+                                    <span id="uploadSpeed">0 KB/s</span>
+                                    <span id="timeRemaining">Calculating...</span>
+                                </div>
+                                <div class="upload-transferred">
+                                    <span id="uploadedSize">0 KB</span> / <span id="totalSize">0 KB</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload Now
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="files-section">
+                <div class="card shine-effect">
+                    <h2><i class="fas fa-folder-open"></i> Available Files</h2>
+                    <div id="fileList" class="file-list">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading your files...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 ShareU - Secure File Sharing</p>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
