@@ -1,4 +1,4 @@
-﻿<Window x:Class="ShareU.MainWindow"
+<Window x:Class="ShareU.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:ShareU"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="ShareU - File Transfer" 
-        Height="720" Width="1000"
+        Title="ShareU - Ultra High Speed LAN Transfer" 
+        Height="800" Width="1160"
+        MinHeight="700" MinWidth="1000"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -25,8 +26,8 @@
     <Window.Resources>
         <Style x:Key="GlassCard" TargetType="Border">
             <Setter Property="Background" Value="#22FFFFFF"/>
-            <Setter Property="CornerRadius" Value="20"/>
-            <Setter Property="BorderBrush" Value="#44FFFFFF"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="BorderBrush" Value="#33FFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Effect">
                 <Setter.Value>
@@ -34,137 +35,302 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="ActionBtn" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+            <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="10"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
     </Window.Resources>
 
     <Border CornerRadius="20" BorderThickness="1" BorderBrush="#33FFFFFF">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#FF1A1A2E" Offset="0"/>
-                <GradientStop Color="#FF16213E" Offset="0.5"/>
-                <GradientStop Color="#FF0F3460" Offset="1"/>
+                <GradientStop Color="#FF0F172A" Offset="0"/>
+                <GradientStop Color="#FF1E293B" Offset="0.5"/>
+                <GradientStop Color="#FF0B1329" Offset="1"/>
             </LinearGradientBrush>
         </Border.Background>
         
-        <Grid>
+        <Grid Margin="15">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/> <!-- Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Network & Receive Folder Settings -->
+                <RowDefinition Height="*"/>    <!-- Main Content (Shared items + Controls) -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
             </Grid.RowDefinitions>
 
-            <!-- Custom Title Bar -->
-            <Grid Grid.Row="0" Margin="20,10,20,0">
+            <!-- 1. Custom Title Bar -->
+            <Grid Grid.Row="0" Margin="10,0,10,15">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="pack://application:,,,/resources/app_icon.png" Width="28" Height="28" Margin="0,0,10,0" />
+                    <Image Source="pack://application:,,,/resources/app_icon.png" Width="26" Height="26" Margin="0,0,10,0" />
                     <TextBlock Text="ShareU" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    <Border Background="#10B981" CornerRadius="8" Padding="6,2" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Ethernet Turbo" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                    </Border>
                 </StackPanel>
                 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,20,0" VerticalAlignment="Center">
+                        <Ellipse x:Name="StatusIndicator" Width="10" Height="10" Fill="#EF4444" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="StatusTextBlock" Text="Offline" FontSize="13" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                    </StackPanel>
                     <Button Style="{StaticResource MaterialDesignFlatButton}" Click="MinimizeButton_Click" Padding="0" Width="30" Height="30">
                         <materialDesign:PackIcon Kind="WindowMinimize" Foreground="White" />
                     </Button>
                     <Button Style="{StaticResource MaterialDesignFlatButton}" Click="CloseButton_Click" Padding="0" Width="30" Height="30">
-                        <materialDesign:PackIcon Kind="WindowClose" Foreground="#E94560" />
+                        <materialDesign:PackIcon Kind="WindowClose" Foreground="#F43F5E" />
                     </Button>
                 </StackPanel>
             </Grid>
 
-            <!-- Main Content -->
-            <Grid Grid.Row="1" Margin="30">
+            <!-- 2. Settings Bar: Network Adapter & Destination Folder -->
+            <Border Grid.Row="1" Style="{StaticResource GlassCard}" Padding="15,12" Margin="5,0,5,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1.8*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Network Adapter Selector -->
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="كارت الشبكة / Network Interface" FontSize="12" FontWeight="SemiBold" Foreground="#38BDF8" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="NetworkAdapterComboBox" 
+                                  Foreground="White" 
+                                  Background="#1E293B" 
+                                  Padding="10,6"
+                                  FontSize="12"
+                                  SelectionChanged="NetworkAdapterComboBox_SelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayText}" Foreground="White" FontWeight="Medium"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Receive Folder (Zero C: Drive Consumption) -->
+                    <StackPanel Grid.Column="2">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="مجلد حفظ الملفات المستلمة (لا يستهلك قرص C)" FontSize="12" FontWeight="SemiBold" Foreground="#34D399"/>
+                            <TextBlock Text=" - Receive Directory" FontSize="11" Foreground="#94A3B8" Margin="6,1,0,0"/>
+                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="ReceiveFolderTextBox" IsReadOnly="True" 
+                                     Background="#1E293B" Foreground="#E2E8F0" 
+                                     Padding="10,6" FontSize="12" BorderThickness="1" BorderBrush="#334155"
+                                     VerticalContentAlignment="Center"/>
+                            <Button Grid.Column="1" Content="تغيير / Browse" Click="BrowseReceiveFolder_Click"
+                                    Margin="8,0,0,0" Style="{StaticResource ActionBtn}" 
+                                    Background="#0284C7" Foreground="White" Height="32" Padding="12,0"/>
+                            <Button Grid.Column="2" Content="فتح / Open" Click="OpenReceiveFolder_Click"
+                                    Margin="6,0,0,0" Style="{StaticResource ActionBtn}" 
+                                    Background="#334155" Foreground="White" Height="32" Padding="12,0"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 3. Main Workspace: Left = Direct Shared Items, Right = QR & Transfer Controls -->
+            <Grid Grid.Row="2" Margin="5,0,5,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left Column - Status and Controls -->
-                <StackPanel Grid.Column="0" Margin="0,0,20,0" VerticalAlignment="Center">
-                    <Border Style="{StaticResource GlassCard}" Padding="30">
-                        <StackPanel>
-                            <TextBlock Text="STATUS" FontSize="12" FontWeight="Bold" Foreground="#88FFFFFF" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Ellipse x:Name="StatusIndicator" Width="12" Height="12" Fill="#E94560" Margin="0,0,15,0" VerticalAlignment="Center">
-                                    <Ellipse.Effect>
-                                        <BlurEffect Radius="4"/>
-                                    </Ellipse.Effect>
-                                </Ellipse>
-                                <TextBlock x:Name="StatusTextBlock" Text="Offline" FontSize="24" FontWeight="Light" Foreground="White" />
+                <!-- Left Column: Direct File & Folder Sharing (Zero-copy from D:, E:, etc.) -->
+                <Border Grid.Column="0" Style="{StaticResource GlassCard}" Padding="18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Header & Action buttons -->
+                            <RowDefinition Height="*"/>    <!-- Shared Items List -->
+                            <RowDefinition Height="Auto"/> <!-- Live Transfer Progress -->
+                            <RowDefinition Height="Auto"/> <!-- Drop hint banner -->
+                        </Grid.RowDefinitions>
+
+                        <!-- Header & Add Buttons -->
+                        <Grid Grid.Row="0" Margin="0,0,0,12">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="مشاركة الملفات مباشرة من مكانها (بدون نسخ للـ C)" 
+                                           FontSize="15" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock Text="Direct zero-copy sharing from original drive (D:, E:...)" 
+                                           FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
                             </StackPanel>
-                            
-                            <Border x:Name="ServerUrlContainer" Background="#11FFFFFF" CornerRadius="10" Margin="0,20,0,0" Visibility="Collapsed">
-                                <TextBlock x:Name="ServerUrlBlock" Text="" Padding="15" TextAlignment="Center" 
-                                         Foreground="#E94560" FontFamily="Consolas" FontSize="14"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="+ إضافة ملفات" Click="AddFilesButton_Click" 
+                                        Style="{StaticResource ActionBtn}" Background="#3B82F6" Foreground="White" Margin="0,0,6,0"/>
+                                <Button Content="+ إضافة مجلد" Click="AddFolderButton_Click" 
+                                        Style="{StaticResource ActionBtn}" Background="#8B5CF6" Foreground="White" Margin="0,0,6,0"/>
+                                <Button Content="مسح الكل" Click="ClearSharedItemsButton_Click" 
+                                        Style="{StaticResource ActionBtn}" Background="#DC2626" Foreground="White"/>
+                            </StackPanel>
+                        </Grid>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
-                        <Button x:Name="StartServerButton" Content="START SHARING" 
-                                Foreground="White"
-                                Background="#E94560"
-                                BorderThickness="0"
-                                materialDesign:ButtonAssist.CornerRadius="25" 
-                                Width="160" Height="50" FontSize="14" FontWeight="Bold">
-                            <Button.Effect>
-                                <DropShadowEffect BlurRadius="20" Color="#E94560" Opacity="0.4" ShadowDepth="0"/>
-                            </Button.Effect>
-                        </Button>
-                        <Button x:Name="StopServerButton" Content="STOP" 
-                                IsEnabled="False"
-                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                Foreground="White"
-                                BorderBrush="#44FFFFFF"
-                                materialDesign:ButtonAssist.CornerRadius="25" 
-                                Margin="15,0,0,0" Width="100" Height="50" FontSize="14" FontWeight="Bold"/>
-                    </StackPanel>
-                </StackPanel>
+                        <!-- List of Shared Items with Drag & Drop -->
+                        <Border Grid.Row="1" Background="#0F172A" CornerRadius="12" BorderThickness="1" BorderBrush="#334155"
+                                AllowDrop="True" Drop="SharedList_Drop" DragOver="SharedList_DragOver">
+                            <Grid>
+                                <!-- List View -->
+                                <ListBox x:Name="SharedItemsListView" 
+                                         Background="Transparent" BorderThickness="0" 
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         Padding="6">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#1E293B" CornerRadius="8" Padding="12,8" Margin="0,3" BorderThickness="1" BorderBrush="#334155">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
 
-                <!-- Center Column - QR Code -->
-                <Border Grid.Column="1" Style="{StaticResource GlassCard}" Width="320" Margin="0,0,20,0" Padding="30">
-                    <StackPanel>
-                        <TextBlock Text="REMOTELY CONNECT" FontSize="12" FontWeight="Bold" Foreground="#88FFFFFF" Margin="0,0,0,20" TextAlignment="Center" />
-                        <Border Background="White" CornerRadius="15" Padding="15" HorizontalAlignment="Center">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="15" Opacity="0.2" ShadowDepth="0"/>
-                            </Border.Effect>
-                            <Image x:Name="QRCodeImage" Width="200" Height="200" Stretch="Uniform"/>
+                                                    <TextBlock Text="{Binding ItemType}" FontSize="15" Margin="0,0,10,0" VerticalAlignment="Center"/>
+
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="White" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding FullPath}" Foreground="#94A3B8" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+
+                                                    <Border Grid.Column="2" Background="#0F172A" CornerRadius="6" Padding="8,4" Margin="10,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FormattedSize}" Foreground="#38BDF8" FontWeight="Bold" FontSize="11"/>
+                                                    </Border>
+
+                                                    <Button Grid.Column="3" Content="🚀 إرسال" Click="PushItem_Click" Tag="{Binding}"
+                                                            Height="26" Padding="10,0" Margin="0,0,6,0"
+                                                            Background="#10B981" Foreground="White" BorderThickness="0"
+                                                            materialDesign:ButtonAssist.CornerRadius="6"
+                                                            FontSize="11" FontWeight="Bold"
+                                                            ToolTip="إرسال طلب نقل فوري لهذا العنصر إلى الجهاز المتصل لتحديد مسار حفظه"/>
+
+                                                    <Button Grid.Column="4" Content="✕" Click="RemoveItem_Click" Tag="{Binding}"
+                                                            Width="26" Height="26" Padding="0"
+                                                            Background="#F43F5E" Foreground="White" BorderThickness="0"
+                                                            materialDesign:ButtonAssist.CornerRadius="13"
+                                                            ToolTip="إلغاء المشاركة (لا يحذف الملف الأصلي من القرص)"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <!-- Empty Placeholder -->
+                                <StackPanel x:Name="EmptySharedHintPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            IsHitTestVisible="False" Opacity="0.6">
+                                    <materialDesign:PackIcon Kind="CloudUploadOutline" Width="50" Height="50" Foreground="#38BDF8" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="اسحب وأفلت الملفات أو المجلدات هنا لمشاركتها فوراً" 
+                                               Foreground="White" FontSize="14" FontWeight="Medium" Margin="0,10,0,4" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="أو اضغط على زر (+ إضافة ملفات / + إضافة مجلد) بالأعلى" 
+                                               Foreground="#94A3B8" FontSize="12" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
                         </Border>
-                        <TextBlock x:Name="QRCodeUrl" Text="" Margin="0,20,0,0" TextAlignment="Center" 
-                                 Foreground="White" Opacity="0.6" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap"/>
-                        <Button x:Name="CopyUrlButton" Content="COPY URL" 
-                                Style="{StaticResource MaterialDesignFlatButton}" 
-                                Foreground="#E94560"
-                                Margin="0,15,0,0" Click="CopyUrlButton_Click" Visibility="Collapsed">
-                        </Button>
-                    </StackPanel>
+
+                        <!-- Live Push Transfer Progress Card -->
+                        <Border x:Name="LiveTransferCard" Grid.Row="2" Background="#0F172A" CornerRadius="8" Padding="12" Margin="0,8,0,0" Visibility="Collapsed" BorderThickness="1" BorderBrush="#10B981">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock x:Name="LiveTransferTitle" Text="جاري النقل المباشر إلى الجهاز الآخر..." Foreground="#10B981" FontWeight="Bold" FontSize="12"/>
+                                    <TextBlock x:Name="LiveTransferSpeed" Text="0 MB/s" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <ProgressBar x:Name="LiveTransferProgressBar" Height="6" Margin="0,8,0,4" Background="#1E293B" Foreground="#10B981" Value="0" Maximum="100"/>
+                                <Grid>
+                                    <TextBlock x:Name="LiveTransferFile" Text="Preparing..." Foreground="#94A3B8" FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="320"/>
+                                    <TextBlock x:Name="LiveTransferPercent" Text="0%" Foreground="White" FontSize="11" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Bottom Notice -->
+                        <TextBlock Grid.Row="3" Text="💡 اضغط على زر (🚀 إرسال) بجانب أي مجلد ليبدأ نقله فوراً إلى الجهاز الآخر بعد موافقته واختيار مسار حفظه." 
+                                   Foreground="#94A3B8" FontSize="11" Margin="0,8,0,0"/>
+                    </Grid>
                 </Border>
 
-                <!-- Right Column -->
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <Border Style="{StaticResource GlassCard}" Padding="30">
+                <!-- Right Column: Server Control & QR Code & Ethernet Tips -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Server Control Buttons -->
+                        <RowDefinition Height="Auto"/> <!-- QR & URL -->
+                        <RowDefinition Height="*"/>    <!-- Speed Instructions -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Server Start / Stop Buttons -->
+                    <Border Grid.Row="0" Style="{StaticResource GlassCard}" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="INSTRUCTIONS" FontSize="12" FontWeight="Bold" Foreground="#88FFFFFF" Margin="0,0,0,20"/>
-                            <StackPanel>
-                                <TextBlock Text="1. Start the server" Foreground="White" Margin="0,0,0,10" Opacity="0.8"/>
-                                <TextBlock Text="2. Scan QR or share URL" Foreground="White" Margin="0,0,0,10" Opacity="0.8"/>
-                                <TextBlock Text="3. Drag &amp; Drop files here" Foreground="White" Margin="0,0,0,10" Opacity="0.8"/>
-                                <TextBlock Text="4. Access from any device" Foreground="White" Opacity="0.8"/>
+                            <TextBlock Text="SERVER CONTROL" FontSize="11" FontWeight="Bold" Foreground="#94A3B8" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button x:Name="StartServerButton" Content="START SHARING" 
+                                        Click="StartServerButton_Click"
+                                        Foreground="White" Background="#10B981" BorderThickness="0"
+                                        materialDesign:ButtonAssist.CornerRadius="20" 
+                                        Width="160" Height="46" FontSize="13" FontWeight="Bold">
+                                    <Button.Effect>
+                                        <DropShadowEffect BlurRadius="15" Color="#10B981" Opacity="0.4" ShadowDepth="0"/>
+                                    </Button.Effect>
+                                </Button>
+                                <Button x:Name="StopServerButton" Content="STOP" 
+                                        Click="StopServerButton_Click"
+                                        IsEnabled="False"
+                                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                                        Foreground="White" BorderBrush="#64748B"
+                                        materialDesign:ButtonAssist.CornerRadius="20" 
+                                        Margin="10,0,0,0" Width="90" Height="46" FontSize="13" FontWeight="Bold"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    
-                    <Border Style="{StaticResource GlassCard}" Margin="0,20,0,0" Padding="20">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <materialDesign:PackIcon Kind="Security" Foreground="#06D6A0" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Encrypted P2P Transfer" Foreground="#06D6A0" FontSize="11" VerticalAlignment="Center"/>
+
+                    <!-- QR Code & URL Box -->
+                    <Border Grid.Row="1" Style="{StaticResource GlassCard}" Padding="15" Margin="0,0,0,12">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Border Background="White" CornerRadius="12" Padding="10" HorizontalAlignment="Center" Width="170" Height="170">
+                                <Image x:Name="QRCodeImage" Stretch="Uniform"/>
+                            </Border>
+
+                            <Border x:Name="ServerUrlContainer" Background="#0F172A" CornerRadius="8" Margin="0,12,0,0" Padding="10,6" Visibility="Visible">
+                                <TextBlock x:Name="ServerUrlBlock" Text="Server not started" TextAlignment="Center" 
+                                           Foreground="#38BDF8" FontFamily="Consolas" FontSize="13" FontWeight="Bold"/>
+                            </Border>
+
+                            <Button x:Name="CopyUrlButton" Content="نسخ الرابط / COPY URL" 
+                                    Style="{StaticResource MaterialDesignFlatButton}" 
+                                    Foreground="#38BDF8" FontWeight="SemiBold"
+                                    Margin="0,6,0,0" Click="CopyUrlButton_Click"/>
                         </StackPanel>
                     </Border>
-                </StackPanel>
+
+                    <!-- Ethernet Max Speed Guide -->
+                    <Border Grid.Row="2" Style="{StaticResource GlassCard}" Padding="15">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="LightningBolt" Foreground="#F59E0B" Width="20" Height="20" VerticalAlignment="Center"/>
+                                    <TextBlock Text="أقصى سرعة بسلك Ethernet:" FontWeight="Bold" Foreground="#F59E0B" FontSize="13" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="1. وصل سلك الإيثرنت بين الجهازين مباشرة." Foreground="#E2E8F0" FontSize="11.5" Margin="0,0,0,4"/>
+                                <TextBlock Text="2. اختر كارت [Ethernet] من القائمة بالأعلى." Foreground="#E2E8F0" FontSize="11.5" Margin="0,0,0,4"/>
+                                <TextBlock Text="3. افتح الرابط في متصفح الجهاز الثاني لتحميل الملفات." Foreground="#E2E8F0" FontSize="11.5" Margin="0,0,0,4"/>
+                                <TextBlock Text="4. السرعة تصل إلى 115-125 MB/s (السعة القصوى لـ Gigabit LAN)." Foreground="#10B981" FontWeight="SemiBold" FontSize="11.5" Margin="0,0,0,4"/>
+                                <TextBlock Text="5. نقل مباشر بالكامل بدون استهلاك مساحة C نهائياً." Foreground="#38BDF8" FontSize="11.5"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
             </Grid>
 
-            <!-- Footer -->
-            <TextBlock Grid.Row="2" Text="ShareU • Design by Antigravity" 
-                     HorizontalAlignment="Center" Margin="0,0,0,15" Opacity="0.3" Foreground="White" FontSize="10"/>
+            <!-- 4. Footer -->
+            <TextBlock Grid.Row="3" Text="ShareU • High Speed Local Transfer • Zero-Copy Architecture" 
+                       HorizontalAlignment="Center" Margin="0,5,0,0" Opacity="0.5" Foreground="#94A3B8" FontSize="11"/>
         </Grid>
     </Border>
 </Window>
